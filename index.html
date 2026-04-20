@@ -75,112 +75,82 @@ input:focus { box-shadow: 0 0 15px #3b82f6; }
   <div class="results" id="results"></div>
 </div>
 
+
+
 <script>
-  const FIREBASE_URL = "https://testdb-f1096-default-rtdb.firebaseio.com/visits.json";
   const MAX_RESULTS = 20;
 
-  // ✅ دالة تطبيع النص العربي
-  function normalizeArabic(text) {
-    return text
-      .toLowerCase()
-      .replace(/[أإآٱ]/g, "ا")
-      .replace(/ة/g, "ه")
-      .replace(/ى/g, "ي")
-      .replace(/[\u064B-\u065F]/g, "")
-      .replace(/\s+/g, ""); // ✅ حذف كل المسافات
-  }
+  let debounceTimer = null;
 
-  // ✅ جلب العداد عند التحميل
-  fetch(FIREBASE_URL)
+  fetch("counter.php?action=get")
     .then(res => res.json())
-    .then(count => {
+    .then(data => {
       const el = document.getElementById("visitCount");
-      if (el) el.innerText = count || 0;
+      if (el) el.innerText = data.count ?? 0;
     })
     .catch(() => {
       const el = document.getElementById("visitCount");
       if (el) el.innerText = "—";
     });
 
-  // ✅ تحميل البيانات + فهرسة مسبقة بالتطبيع
-  let indexedStudents = [];
-
-  fetch("students.json")
-    .then(res => {
-      if (!res.ok) throw new Error("students.json not found");
-      return res.json();
-    })
-    .then(data => {
-      indexedStudents = Object.entries(data).map(([number, student]) => ({
-        number,
-        student,
-        nameLower: normalizeArabic(student.name) // ✅ تطبيع مرة واحدة عند التحميل
-      }));
-    })
-    .catch(err => console.warn("تعذّر تحميل بيانات الطلاب:", err.message));
-
   let counted = false;
-  let debounceTimer = null;
 
   document.getElementById("search").addEventListener("input", function () {
     clearTimeout(debounceTimer);
-    const rawValue = this.value.trim();
 
-    if (!rawValue) {
+    const value = this.value.trim();
+    const resultsDiv = document.getElementById("results");
+
+    if (!value) {
       counted = false;
-      document.getElementById("results").innerHTML = "";
+      resultsDiv.innerHTML = "";
       return;
     }
 
     debounceTimer = setTimeout(() => {
-      const query = normalizeArabic(rawValue); // ✅ تطبيع ما يكتبه المستخدم
-      const resultsDiv = document.getElementById("results");
+
 
       if (!counted) {
         counted = true;
-        fetch(FIREBASE_URL)
+        fetch("counter.php?action=increment")
           .then(res => res.json())
-          .then(currentCount => {
-            const newCount = (currentCount || 0) + 1;
-            fetch(FIREBASE_URL, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(newCount)
-            });
+          .then(data => {
             const el = document.getElementById("visitCount");
-            if (el) el.innerText = newCount;
+            if (el) el.innerText = data.count;
           });
       }
 
-      const fragment = document.createDocumentFragment();
-      let count = 0;
-      let found = false;
 
-      for (const { number, student, nameLower } of indexedStudents) {
-        if (count >= MAX_RESULTS) break;
-        if (number === query || nameLower.includes(query)) {
-          found = true;
-          count++;
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <div class="name">${student.name}</div>
-            <div class="number">الرقم: ${number}</div>
-            <div>عدد المواد: ${student.courses.length}</div>
-            <div>${student.courses.map(c => `<span class="course">${c}</span>`).join("")}</div>
-          `;
-          fragment.appendChild(card);
-        }
-      }
+      fetch("search.php?q=" + encodeURIComponent(value))
+        .then(res => res.json())
+        .then(data => {
+          resultsDiv.innerHTML = "";
 
-      resultsDiv.innerHTML = "";
-      if (found) {
-        resultsDiv.appendChild(fragment);
-      } else {
-        resultsDiv.innerHTML = `<div class="no-result">لا يوجد نتائج</div>`;
-      }
+          if (!data.results.length) {
+            resultsDiv.innerHTML = `<div class="no-result">لا يوجد نتائج</div>`;
+            return;
+          }
+
+          const fragment = document.createDocumentFragment();
+
+          data.results.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <div class="name">${item.name}</div>
+              <div class="number">الرقم: ${item.number}</div>
+              <div>عدد المواد: ${item.courses.length}</div>
+              <div>${item.courses.map(c => `<span class="course">${c}</span>`).join("")}</div>
+            `;
+            fragment.appendChild(card);
+          });
+
+          resultsDiv.appendChild(fragment);
+        });
+
     }, 300);
   });
 </script>
+
 </body>
 </html>
