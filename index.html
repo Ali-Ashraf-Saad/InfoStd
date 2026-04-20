@@ -191,7 +191,7 @@ document.getElementById("search").addEventListener("input", function() {
         resultsDiv.innerHTML = `<div class="no-result">لا يوجد نتائج</div>`;
     }
     
-    fetch("https://api.countapi.xyz/hit/ali-students-2026/visits")
+    fetch("https://api.countapi.xyz/hit/ali-ashrafs-team/visits")
   .then(res => res.json())
   .then(data => {
       document.getElementById("visitCount").innerText = data.value;
