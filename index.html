@@ -144,20 +144,13 @@ input:focus {
 </div>
 
 <script>
-  // ✅ عداد زوار عالمي عبر Firebase Realtime Database
-  const FIREBASE_URL = "https://testdb-f1096-default-rtdb.firebaseio.com/visits.json";
+  const FIREBASE_URL = "https://YOUR-PROJECT-URL/visits.json";
 
+  // ✅ جلب العداد فقط عند التحميل (بدون زيادة)
   fetch(FIREBASE_URL)
     .then(res => res.json())
-    .then(currentCount => {
-      const newCount = (currentCount || 0) + 1;
-      // تحديث العداد في قاعدة البيانات
-      fetch(FIREBASE_URL, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCount)
-      });
-      document.getElementById("visitCount").innerText = newCount;
+    .then(count => {
+      document.getElementById("visitCount").innerText = count || 0;
     })
     .catch(() => {
       document.getElementById("visitCount").innerText = "—";
@@ -173,13 +166,37 @@ input:focus {
     .then(data => { students = data; })
     .catch(err => console.warn("تعذّر تحميل بيانات الطلاب:", err.message));
 
-  // البحث
+  // ✅ متغير لمنع الزيادة أكثر من مرة لكل بحث
+  let counted = false;
+
   document.getElementById("search").addEventListener("input", function () {
     const query = this.value.trim().toLowerCase();
     const resultsDiv = document.getElementById("results");
     resultsDiv.innerHTML = "";
-    if (!query) return;
 
+    // ✅ لو المربع اتمسح، اسمح بالعد مجدداً في البحث الجاي
+    if (!query) {
+      counted = false;
+      return;
+    }
+
+    // ✅ زيادة العداد مرة واحدة فقط لكل بحث جديد
+    if (!counted) {
+      counted = true;
+      fetch(FIREBASE_URL)
+        .then(res => res.json())
+        .then(currentCount => {
+          const newCount = (currentCount || 0) + 1;
+          fetch(FIREBASE_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newCount)
+          });
+          document.getElementById("visitCount").innerText = newCount;
+        });
+    }
+
+    // البحث
     let found = false;
     for (let number in students) {
       let student = students[number];
@@ -201,6 +218,7 @@ input:focus {
       resultsDiv.innerHTML = `<div class="no-result">لا يوجد نتائج</div>`;
     }
   });
+</script>
 </script>
 </body>
 </html>
