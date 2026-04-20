@@ -1,468 +1,206 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>الاستعلام عن المقررات الدراسية | نظام البحث المتكامل</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الاستعلام عن المقررات الدراسية</title>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap');
 
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(145deg, #0b1120 0%, #0a0f1c 100%);
-    color: #f1f5f9;
-    min-height: 100vh;
-    padding: 20px 16px;
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: #fff;
+    margin: 0;
+    padding: 0;
 }
 
-/* smooth container */
+/* container */
 .container {
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 20px 12px 50px;
+    max-width: 700px;
+    margin: auto;
+    padding: 40px 20px;
 }
 
-/* header & title */
+/* title */
 h1 {
     text-align: center;
-    font-weight: 700;
-    font-size: 1.9rem;
-    background: linear-gradient(135deg, #c084fc, #60a5fa);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    letter-spacing: -0.3px;
-    margin-bottom: 12px;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.sub {
-    text-align: center;
-    color: #94a3b8;
-    font-size: 0.9rem;
-    margin-bottom: 28px;
-    border-bottom: 1px dashed #334155;
-    display: inline-block;
-    width: auto;
-    margin-left: auto;
-    margin-right: auto;
-    padding-bottom: 6px;
-}
-
-/* counter badge modern */
-.counter {
-    background: rgba(30, 41, 59, 0.65);
-    backdrop-filter: blur(12px);
-    border-radius: 60px;
-    padding: 8px 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 28px;
-    border: 1px solid rgba(96, 165, 250, 0.3);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    width: fit-content;
-}
-
-.counter span:first-child {
-    color: #cbd5e1;
-}
-
-.counter #visitCount {
-    background: #0f172a;
-    padding: 4px 14px;
-    border-radius: 40px;
-    font-weight: 700;
-    color: #facc15;
-    font-size: 1.1rem;
-    margin-right: 8px;
-    letter-spacing: 1px;
+    margin-bottom: 30px;
+    font-weight: 600;
 }
 
 /* search box */
 .search-box {
-    margin: 20px 0 24px;
     position: relative;
 }
 
-.search-box input {
+input {
     width: 100%;
-    padding: 18px 24px;
-    background: #1e293b;
-    border: 1.5px solid #334155;
-    border-radius: 60px;
-    font-size: 1rem;
-    font-family: 'Cairo', monospace;
-    color: #ffffff;
+    padding: 15px 20px;
+    border-radius: 15px;
+    border: none;
     outline: none;
-    transition: all 0.25s ease;
-    text-align: right;
-    font-weight: 500;
-    letter-spacing: 0.3px;
+    font-size: 16px;
+    background: #1e293b;
+    color: white;
+    transition: 0.3s;
 }
 
-.search-box input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
-    background: #0f172a;
+input:focus {
+    box-shadow: 0 0 15px #3b82f6;
 }
 
-.search-box input::placeholder {
-    color: #6c7a91;
-    font-weight: 400;
-    font-size: 0.95rem;
-}
-
-/* results grid */
+/* results */
 .results {
-    margin-top: 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    margin-top: 30px;
 }
 
-/* modern card design */
+/* card */
 .card {
-    background: rgba(17, 24, 39, 0.85);
-    backdrop-filter: blur(6px);
-    border-radius: 28px;
-    padding: 22px 24px;
-    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    border: 1px solid rgba(51, 65, 85, 0.6);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    animation: fadeSlideUp 0.3s ease-out;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.4s ease;
+    transition: 0.3s;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    border-color: #3b82f680;
-    box-shadow: 0 20px 30px -12px rgba(59,130,246,0.25);
-    background: rgba(25, 35, 55, 0.9);
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
+/* name */
 .name {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #facc15;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.number {
-    color: #94a3b8;
-    font-size: 0.9rem;
-    background: #0f172a80;
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 40px;
-    margin: 8px 0 12px 0;
-    font-family: monospace;
-    letter-spacing: 0.5px;
-}
-
-.courses-title {
-    font-size: 0.85rem;
-    color: #a5b4fc;
-    margin: 12px 0 6px 0;
+    font-size: 18px;
     font-weight: 600;
 }
 
-.courses-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
+/* number */
+.number {
+    color: #94a3b8;
+    margin: 5px 0;
 }
 
+/* courses */
 .course {
+    margin-top: 5px;
+    padding: 5px 10px;
     background: #0f172a;
-    padding: 6px 14px;
-    border-radius: 40px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #b9c3df;
-    border-right: 2px solid #3b82f6;
-    transition: 0.1s linear;
-    letter-spacing: 0.2px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-top: 8px;
+    font-size: 14px;
 }
 
-.course:hover {
-    background: #1e2a47;
-    color: white;
-}
-
-.badge-count {
-    background: #2d3a5e;
-    border-radius: 60px;
-    padding: 2px 10px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: #cbd5e1;
-    margin-right: 10px;
-}
-
+/* no result */
 .no-result {
     text-align: center;
-    background: rgba(0,0,0,0.3);
-    padding: 32px 20px;
-    border-radius: 48px;
     color: #94a3b8;
-    font-size: 1.1rem;
-    border: 1px dashed #475569;
-    backdrop-filter: blur(4px);
     margin-top: 20px;
 }
 
-.empty-placeholder {
-    text-align: center;
-    color: #5b6e8c;
-    margin-top: 55px;
-    background: #0f172a60;
-    padding: 40px 20px;
-    border-radius: 48px;
-    font-size: 1rem;
-    border: 1px solid #1e293b;
-}
-
 /* animation */
-@keyframes fadeSlideUp {
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
-footer {
-    text-align: center;
-    font-size: 0.75rem;
-    color: #4b556b;
-    margin-top: 56px;
-    border-top: 1px solid #1e293b;
-    padding-top: 22px;
-}
-
-/* responsive */
-@media (max-width: 580px) {
-    .container {
-        padding: 16px 10px;
-    }
-    h1 {
-        font-size: 1.5rem;
-    }
-    .card {
-        padding: 16px 18px;
-    }
-    .name {
-        font-size: 1.2rem;
-    }
-    .course {
-        font-size: 0.7rem;
-        padding: 4px 12px;
-    }
-    .counter {
-        font-size: 0.8rem;
-    }
-}
 </style>
+
 </head>
+
 <body>
 
 <div class="container">
-    <h1>📚 بوابة الاستعلام عن المقررات الدراسية</h1>
-    <div style="text-align: center;">
-        <div class="counter">
-            <span>👥 عدد الزيارات:</span>
-            <span id="visitCount">0</span>
-        </div>
-    </div>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 ابحث بالاسم (ثلاثي) أو الرقم الأكاديمي ..." autocomplete="off">
-    </div>
 
-    <div id="results" class="results">
-        <div class="empty-placeholder">✨ ابدأ الكتابة للبحث عن الطلاب والمقررات الدراسية</div>
-    </div>
-    <footer>نظام استعلام داخلي · بيانات تجريبية محدثة | بحث بالاسم أو الرقم</footer>
+<h1> بوابة الاستعلام عن المقررات الدراسية</h1>
+
+<div class="counter">
+    عدد الزوار: <span id="visitCount">...</span>
+</div>
+
+<div class="search-box">
+    <input type="text" id="search" placeholder="اكتب الاسم أو الرقم الأكاديمي...">
+</div>
+
+<div class="results" id="results"></div>
+
+
 </div>
 
 <script>
-let students = {};
+  // ✅ عداد زوار عالمي عبر Firebase Realtime Database
+  const FIREBASE_URL = "https://testdb-f1096-default-rtdb.firebaseio.com/visits.json";
 
-// تحميل البيانات
-fetch("students.json")
-.then(res => res.json())
-.then(data => {
-    students = data;
-});
-
-    // عناصر DOM
-    const searchInput = document.getElementById("searchInput");
-    const resultsContainer = document.getElementById("results");
-
-    // دالة عرض النتائج (بحث فوري)
-    function performSearch() {
-        const queryRaw = searchInput.value;
-        const query = queryRaw.trim().toLowerCase();
-        
-        // تنظيف النتائج السابقة
-        resultsContainer.innerHTML = "";
-
-        // حالة الحقل الفارغ: عرض رسالة ترحيبيه
-        if (query === "") {
-            const emptyDiv = document.createElement("div");
-            emptyDiv.className = "empty-placeholder";
-            emptyDiv.innerHTML = "📖 اكتب الاسم الكامل أو الرقم الأكاديمي لعرض المقررات المسجلة";
-            resultsContainer.appendChild(emptyDiv);
-            return;
-        }
-
-        let hasMatches = false;
-        const fragment = document.createDocumentFragment();
-
-        // التكرار على جميع الطلاب
-        for (const [studentId, studentInfo] of Object.entries(students)) {
-            const studentName = studentInfo.name;
-            const coursesList = studentInfo.courses || [];
-            
-            // شرط البحث: الرقم الأكاديمي يطابق النص تماماً  OR  الاسم يحتوي على النص (جزئي)
-            const idMatch = (studentId === query);
-            const nameMatch = studentName.toLowerCase().includes(query);
-            
-            if (idMatch || nameMatch) {
-                hasMatches = true;
-                // إنشاء بطاقة الطالب
-                const card = document.createElement("div");
-                card.className = "card";
-                
-                // عدد المقررات
-                const coursesCount = coursesList.length;
-                
-                // بناء كروت المواد
-                let coursesHtml = '';
-                if (coursesList.length > 0) {
-                    coursesHtml = `<div class="courses-title">📘 المقررات الدراسية (${coursesCount}) :</div>
-                                   <div class="courses-container">` + 
-                                   coursesList.map(course => `<span class="course">${escapeHtml(course)}</span>`).join('') +
-                                   `</div>`;
-                } else {
-                    coursesHtml = `<div class="courses-title">⚠️ لا توجد مقررات مسجلة حالياً</div>`;
-                }
-                
-                card.innerHTML = `
-                    <div class="name">
-                        👤 ${escapeHtml(studentName)}
-                        <span class="badge-count">${coursesCount} مادة</span>
-                    </div>
-                    <div class="number">🎓 الرقم الأكاديمي: ${studentId}</div>
-                    ${coursesHtml}
-                `;
-                fragment.appendChild(card);
-            }
-        }
-        
-        if (!hasMatches) {
-            const noResultDiv = document.createElement("div");
-            noResultDiv.className = "no-result";
-            noResultDiv.innerHTML = "😓 لا توجد نتائج مطابقة ❌ <br> تأكد من الاسم أو الرقم الأكاديمي";
-            resultsContainer.appendChild(noResultDiv);
-        } else {
-            resultsContainer.appendChild(fragment);
-        }
-    }
-
-    // دالة بسيطة لتجنب XSS (حماية)
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-            return c;
-        });
-    }
-
-    // ----- عداد الزوار المحلي (localStorage) بدلاً من API خارجي معطل -----
-    function initVisitorCounter() {
-        const VISIT_KEY = "course_portal_visits_v2";
-        let currentVisits = localStorage.getItem(VISIT_KEY);
-        
-        if (currentVisits === null) {
-            // أول زيارة
-            currentVisits = 1;
-        } else {
-            // زيادة العداد بمنطق آمن
-            let parsed = parseInt(currentVisits, 10);
-            if (isNaN(parsed)) parsed = 0;
-            currentVisits = parsed + 1;
-        }
-        // تخزين القيمة الجديدة
-        localStorage.setItem(VISIT_KEY, currentVisits);
-        
-        // عرض العدد في الواجهة
-        const visitSpan = document.getElementById("visitCount");
-        if (visitSpan) {
-            visitSpan.innerText = currentVisits;
-        }
-    }
-    
-    // ---- تحسين: إضافة دعم البحث الفوري مع debounce خفيف لتجنب أي ضغط (اختياري لكنه جيد)
-    let debounceTimer;
-    function handleSearchWithDelay() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            performSearch();
-        }, 120);
-    }
-    
-    // ---- تحميل الصفحة وربط الأحداث وتجهيز العداد ----
-    document.addEventListener("DOMContentLoaded", () => {
-        // تهيئة عداد الزوار (محلي آمن)
-        initVisitorCounter();
-        
-        // التأكد من وجود بيانات الطلاب (جاهزة)
-        if (Object.keys(students).length === 0) {
-            // احتياطي: في حالة فارغة بشكل غير متوقع نضيف بيانات افتراضية مصغرة
-            students = {
-                "999999": { name: "طالب تجريبي", courses: ["نظام معلومات", "برمجة"] }
-            };
-        }
-        
-        // إضافة مستمع حدث البحث
-        searchInput.addEventListener("input", handleSearchWithDelay);
-        
-        // عرض رسالة ترحيب أولية (نظراً لعدم وجود بحث)
-        performSearch(); // تعرض رسالة "اكتب للبحث"
-        
-        // إضافة تحسين: عند الضغط على مفتاح ESC مسح الحقل وعرض الرسالة الافتراضية
-        searchInput.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                searchInput.value = "";
-                performSearch();
-                e.preventDefault();
-            }
-        });
+  fetch(FIREBASE_URL)
+    .then(res => res.json())
+    .then(currentCount => {
+      const newCount = (currentCount || 0) + 1;
+      // تحديث العداد في قاعدة البيانات
+      fetch(FIREBASE_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCount)
+      });
+      document.getElementById("visitCount").innerText = newCount;
+    })
+    .catch(() => {
+      document.getElementById("visitCount").innerText = "—";
     });
-    
-    // ملاحظة: لا يتم استدعاء أي fetch خارجي أو api مكسور، جميع البيانات مدمجة وعداد الزوار محلي.
-    // تم التخلص من الأخطاء: net::ERR_NAME_NOT_RESOLVED , InfoStd errors , Unchecked runtime.lastError.
-    // الوظائف كاملة وبحث شامل بالاسم أو الرقم الأكاديمي.
+
+  // تحميل بيانات الطلاب
+  let students = {};
+  fetch("students.json")
+    .then(res => {
+      if (!res.ok) throw new Error("students.json not found");
+      return res.json();
+    })
+    .then(data => { students = data; })
+    .catch(err => console.warn("تعذّر تحميل بيانات الطلاب:", err.message));
+
+  // البحث
+  document.getElementById("search").addEventListener("input", function () {
+    const query = this.value.trim().toLowerCase();
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+    if (!query) return;
+
+    let found = false;
+    for (let number in students) {
+      let student = students[number];
+      if (number === query || student.name.toLowerCase().includes(query)) {
+        found = true;
+        let card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="name">${student.name}</div>
+          <div class="number">الرقم: ${number}</div>
+          <div>عدد المواد: ${student.courses.length}</div>
+          <div>${student.courses.map(c => `<span class="course">${c}</span>`).join("")}</div>
+        `;
+        resultsDiv.appendChild(card);
+      }
+    }
+
+    if (!found) {
+      resultsDiv.innerHTML = `<div class="no-result">لا يوجد نتائج</div>`;
+    }
+  });
 </script>
 </body>
 </html>
