@@ -74,17 +74,17 @@
     /* ─────────────────────────────────────────────
        LAYOUT SHELL
     ───────────────────────────────────────────── */
-.app-shell {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: var(--header-h) 1fr;
-  grid-template-areas:
-    "header"
-    "main";
-}
+    .app-shell {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: var(--header-h) 1fr;
+      grid-template-areas:
+        "header"
+        "main";
+    }
 
     /* ─────────────────────────────────────────────
-       SIDEBAR
+       SIDEBAR (retained for possible future use)
     ───────────────────────────────────────────── */
     .sidebar {
       grid-area: sidebar;
@@ -241,11 +241,11 @@
       z-index: 90;
     }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 20px; /* 👈 زودنا المسافة */
-}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
 
     .hamburger {
       display: none;
@@ -277,8 +277,6 @@
     .header-right {
       display: flex; align-items: center; gap: 10px;
     }
-
-
 
     .live-dot {
       width: 6px; height: 6px;
@@ -851,7 +849,6 @@
 
       .hamburger { display: flex; }
 
-
       .main { padding: 18px; }
 
       .explorer-header { flex-direction: column; align-items: flex-start; }
@@ -896,59 +893,40 @@
       pointer-events: none;
     }
 
+    .back-btn {
+      position: static;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
 
-.back-btn {
-  position: static;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 8px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-  background: rgba(0,200,255,0.15);
-  transform: translateX(-3px);
-}
-
-
-
+    .back-btn:hover {
+      background: rgba(0,200,255,0.15);
+      transform: translateX(-3px);
+    }
   </style>
 </head>
 <body>
 
-<!-- ─── LOADING OVERLAY ──────────────────────── -->
-<div id="loading-overlay">
-  <div class="loader-content">
-    <div class="loader-ring"></div>
-    <div class="loader-text">CourseIQ</div>
-  </div>
-</div>
-
-
 <!-- ─── APP SHELL ────────────────────────────── -->
 <div class="app-shell">
-
 
   <!-- HEADER -->
   <header class="header">
     <div class="header-left">
-      <button class="back-btn" onclick="goBack()">
-  ← Back
-</button>
+      <button class="back-btn" onclick="goBack()">← Back</button>
       <div class="breadcrumb">
         <span>Dashboard</span>
         <span class="breadcrumb-sep">›</span>
         <span class="breadcrumb-active">Overview</span>
       </div>
-
     </div>
     <div class="header-right">
-      <div class="header-badge">
-      </div>
       <div class="icon-btn" title="Refresh" onclick="location.reload()">↻</div>
     </div>
   </header>
@@ -1059,8 +1037,6 @@
           <div id="chartBox" class="chart-plot" style="height:260px;"></div>
         </div>
       </div>
-
-
     </div>
 
     <!-- COURSE POPULARITY BARS -->
@@ -1074,10 +1050,8 @@
       <div class="popularity-list" id="popularityList"></div>
     </div>
 
-
   </main>
 </div><!-- end app-shell -->
-
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1151,51 +1125,62 @@ function normalise(raw) {
 }
 
 /* ═══════════════════════════════════════════════
-   INIT
+   INIT – FETCH DATA FROM data/ DIRECTORY
 ═══════════════════════════════════════════════ */
 async function init() {
-  let raw;
   try {
-    // Try students.json first, then students.json
-    let res = await fetch('students.json');
-    if (!res.ok) res = await fetch('students.json');
-    if (!res.ok) throw new Error('not found');
-    raw = await res.json();
-  } catch {
-    raw = FALLBACK_DATA;
+    // Load both students and courses JSON files
+    const [resStudents, resCourses] = await Promise.all([
+      fetch('data/students.json'),
+      fetch('data/courses.json')
+    ]);
+    if (!resStudents.ok || !resCourses.ok) throw new Error('Failed to fetch data');
+
+    const rawStudents = await resStudents.json();
+    const rawCourses = await resCourses.json();
+
+    // Build course code → course name mapping
+    const courseNameMap = {};
+    for (const [code, details] of Object.entries(rawCourses)) {
+      courseNameMap[code] = details.name || code;
+    }
+    // Expose globally if needed later
+    window._courseNameMap = courseNameMap;
+
+    // Normalise student data (expects an array from the file)
+    allStudents = normalise(rawStudents);
+
+    // Process frequencies using course names
+    processData(courseNameMap);
+    renderStats();
+    renderCharts();
+    renderPopularity();
+
+    // Hide loader
+    document.getElementById('loading-overlay')?.classList.add('hidden');
+  } catch (err) {
+    console.error('Error loading data:', err);
+    // Show a message or fallback if needed
   }
-
-  allStudents = normalise(raw);
-  processData();
-  renderStats();
-  renderCharts();
-  renderPopularity();
-
-
-  // Hide loader
-  document.getElementById('loading-overlay').classList.add('hidden');
 }
 
 /* ═══════════════════════════════════════════════
-   DATA PROCESSING
+   DATA PROCESSING (uses course names from map)
 ═══════════════════════════════════════════════ */
-/* Strip "(CS321) المقرر  " prefix → keep just the Arabic subject name */
-function cleanCourse(c) {
-  return c.replace(/\(\s*[A-Z]+\d+\s*\)\s*(المقرر\s*)?/u, '').trim() || c;
-}
-
-function processData() {
+function processData(courseNameMap) {
   courseFreq = {};
-  // Build a map: cleanName → original (first seen)
+  // Store original code for possible reference
   window._courseOrigMap = {};
   allStudents.forEach(s => {
-    (s.courses || []).forEach(raw => {
-      const c = cleanCourse(raw);
-      courseFreq[c] = (courseFreq[c] || 0) + 1;
-      if (!window._courseOrigMap[c]) window._courseOrigMap[c] = raw;
+    (s.courses || []).forEach(code => {
+      const name = courseNameMap[code] || code;   // fallback to code if missing
+      courseFreq[name] = (courseFreq[name] || 0) + 1;
+      if (!window._courseOrigMap[name]) {
+        window._courseOrigMap[name] = code;
+      }
     });
   });
-  // Sort by frequency desc
+  // Sort by frequency descending
   allCourseNames = Object.keys(courseFreq).sort((a, b) => courseFreq[b] - courseFreq[a]);
 }
 
@@ -1327,15 +1312,6 @@ function renderHistogram() {
 
 /* ── BOX PLOT ─── */
 function renderBox() {
-  const groups = {};
-  allStudents.forEach(s => {
-    (s.courses || []).forEach(c => {
-      if (!groups[c]) groups[c] = 0;
-    });
-  });
-
-  // Box per top-10 courses: x = course name, y = total students enrolled
-  // Actually: distribution of course counts per student, grouped by number of courses
   const courseCounts = allStudents.map(s => (s.courses || []).length);
 
   const trace = {
@@ -1396,9 +1372,8 @@ function renderPopularity() {
   }, 300);
 }
 
-
 /* ═══════════════════════════════════════════════
-   SIDEBAR TOGGLE (mobile)
+   SIDEBAR TOGGLE (mobile) – kept for compatibility
 ═══════════════════════════════════════════════ */
 function toggleSidebar() {
   const sidebar  = document.getElementById('sidebar');
@@ -1411,24 +1386,16 @@ function toggleSidebar() {
 }
 
 /* ═══════════════════════════════════════════════
-   SCROLL TO SECTION
+   BACK BUTTON
 ═══════════════════════════════════════════════ */
-function scrollToSection(id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function goBack() {
+  window.history.back();
 }
 
 /* ═══════════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', init);
-
-
-function goBack() {
-  window.history.back();
-}
-
-
 </script>
 </body>
 </html>
