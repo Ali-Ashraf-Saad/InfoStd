@@ -1,9 +1,10 @@
 import os
 import json
 import re
+#run second to generate json
 
 # المجلدات المستهدفة
-folders = ['CS', 'IT', 'IS', 'gen']
+folders = ['foldersData/CS', 'foldersData/IT', 'foldersData/IS', 'foldersData/gen']
 
 # قواميس لتجميع البيانات
 students = {}       # id -> {name, courses_set}

@@ -3,7 +3,7 @@
 import os
 import re
 
-FOLDERS = ["data/CS", "data/IT", "data/IS", "data/gen"]
+FOLDERS = ["foldersData/CS", "foldersData/IT", "foldersData/IS", "foldersData/gen"]
 
 def normalize_text(text):
     text = str(text).strip()

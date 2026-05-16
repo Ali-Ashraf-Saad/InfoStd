@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+#run first to generate folders
 import os
 import re
 
@@ -258,8 +258,11 @@ def lookup_with_department_preference(schedule_dict, base_code, department_name,
     return schedule_dict.get(base_key, default_value)
 
 for department_file in department_files:
-    department_name = os.path.splitext(department_file)[0]
-    os.makedirs(department_name, exist_ok=True)
+    department_name = os.path.splitext(os.path.basename(department_file))[0]
+
+    # إنشاء مجلد داخل foldersData
+    output_dir = os.path.join("foldersData", department_name)
+    os.makedirs(output_dir, exist_ok=True)
 
     with open(department_file, "r", encoding="utf-8") as f:
         lines = [line.rstrip() for line in f]
@@ -309,7 +312,7 @@ for department_file in department_files:
 
             output_filename = f"{subject_code}_{committee_number}.txt"
             output_filename = clean_filename(output_filename)
-            output_path = os.path.join(department_name, output_filename)
+            output_path = os.path.join(output_dir, output_filename)
 
             if committee_number - 1 < len(room_list):
                 room_number = room_list[committee_number - 1]
